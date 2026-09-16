@@ -252,8 +252,6 @@ Resources 描述“谁产生日志”，Attributes 描述“这条日志发生�
 
 * `timeUnixNano` 是否为当前时间附近的纳秒时间戳。
 
-* `service.name`、索引集和数据链路是否与页面配置一致。
-
 ## 4. 常见问题
 
 ### 4.1 FAQ
