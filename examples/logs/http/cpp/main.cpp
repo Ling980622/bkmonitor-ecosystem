@@ -21,7 +21,7 @@
 #include <vector>
 
 // 其他库文件
-#include <curl/curl.h>
+#include <curl/curl.h>  // NOLINT
 #include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
@@ -163,7 +163,7 @@ void do_post(const json& payload) {
         log_error(std::string("failed to post request: ") + curl_easy_strerror(rc));
     } else {
         // curl API 要求 CURLINFO_RESPONSE_CODE 必须传 long*，故此处保留 long 而非改用 int64_t
-        long code;
+        long code;  // NOLINT
         curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &code);
         log_info("response.status_code=" + std::to_string(code) + ", body=" + resp);
     }
