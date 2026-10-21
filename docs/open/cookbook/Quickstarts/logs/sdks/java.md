@@ -104,12 +104,17 @@ docker run -e TOKEN="fixme" \
 运行输出：
 
 ```bash
-2026-09-18 11:50:30,515 - INFO - Starting log reporter (press Ctrl+C to stop)...
-2026-09-18 11:50:30,523 - INFO - info log from java sdk
-2026-09-18 11:50:30,632 - WARN - warn log from java sdk
-2026-09-18 11:50:30,741 - ERROR - error log from java sdk
-2026-09-18 11:50:30,844 - DEBUG - debug log from java sdk
-2026-09-18 11:50:30,952 - INFO - info log from java sdk
+Picked up JAVA_TOOL_OPTIONS: -Dfile.encoding=UTF-8 -Dsun.stdout.encoding=UTF-8 -Dsun.stderr.encoding=UTF-8
+Oct 21, 2026 7:39:05 PM com.tencent.bkm.demo.Main main
+INFO: Starting log reporter (press Ctrl+C to stop)...
+Oct 21, 2026 7:39:05 PM com.tencent.bkm.demo.Main main
+SEVERE: error log from java sdk
+Oct 21, 2026 7:39:06 PM com.tencent.bkm.demo.Main main
+INFO: info log from java sdk
+Oct 21, 2026 7:39:06 PM com.tencent.bkm.demo.Main main
+WARNING: warn log from java sdk
+Oct 21, 2026 7:39:06 PM com.tencent.bkm.demo.Main main
+INFO: info log from java sdk
 ...
 ```
 
