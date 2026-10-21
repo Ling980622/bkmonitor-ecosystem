@@ -31,7 +31,7 @@ cd bkmonitor-ecosystem/examples/logs/sdks/python
 
 ### 2.1 创建应用
 
-参考 <a href="https://github.com/TencentBlueKing/bkmonitor-ecosystem/blob/master/docs/open/cookbook/Quickstarts/logs/sdks/README.md" target="_blank">自定义日志 OpenTelemetry SDK 上报</a> 创建一个上报协议为 `JSON` 的自定义日志，关注创建后提供的两个配置项：
+参考 <a href="https://github.com/TencentBlueKing/bkmonitor-ecosystem/blob/master/docs/open/cookbook/Quickstarts/logs/sdks/README.md" target="_blank">自定义日志 OpenTelemetry SDK 上报</a> 创建一个上报协议为 `OTLP/HTTP (Protobuf)` 的自定义日志，关注创建后提供的两个配置项：
 
 * `TOKEN`：日志数据源 Token，上报时必须通过 `x-bk-token` Header 传递。
 
@@ -56,6 +56,7 @@ cd bkmonitor-ecosystem/examples/logs/sdks/python
 from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
 from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
 from opentelemetry.exporter.otlp.proto.http._log_exporter import OTLPLogExporter
+from opentelemetry.sdk.resources import Resource
 
 # ❗❗【非常重要】认证令牌，用于接口鉴权，请替换为页面提供的日志数据源 Token。
 token = os.environ.get("TOKEN", "fixme")
@@ -72,8 +73,8 @@ log_exporter = OTLPLogExporter(
 # 创建 LoggerProvider，关联资源属性（服务名、环境等）
 logger_provider = LoggerProvider(
     resource=Resource.create({
-        "service.name": "custom-log-demo",
-        "deployment.environment": "local",
+        "service.name": "custom-log-sdk-demo",
+        "deployment.environment.name": "local",
     })
 )
 logger_provider.add_log_record_processor(BatchLogRecordProcessor(log_exporter))
@@ -130,6 +131,7 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger("otel")
+logger.setLevel(logging.DEBUG)
 
 # ❗❗【非常重要】认证令牌，用于接口鉴权，请替换为页面提供的日志数据源 Token。
 TOKEN = os.environ.get("TOKEN", "fixme")
@@ -146,7 +148,7 @@ log_exporter = OTLPLogExporter(
 logger_provider = LoggerProvider(
     resource=Resource.create({
         "service.name": "custom-log-sdk-demo",
-        "deployment.environment": "local",
+        "deployment.environment.name": "local",
     })
 )
 logger_provider.add_log_record_processor(BatchLogRecordProcessor(log_exporter))
@@ -172,6 +174,8 @@ def main():
             time.sleep(0.1)  # 每 0.1 秒上报一条随机级别的日志
     except KeyboardInterrupt:
         logger.info("Received keyboard interrupt, exiting...")
+    finally:
+        logger_provider.shutdown()
 
 
 if __name__ == "__main__":
