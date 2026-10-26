@@ -11,7 +11,8 @@
 import logging
 import os
 import random
-import time
+import signal
+import threading
 
 from opentelemetry.exporter.otlp.proto.http._log_exporter import OTLPLogExporter
 from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
@@ -61,12 +62,15 @@ LOG_LEVELS = [
 
 
 def main():
-    logger.info("Starting log reporter (press Ctrl+C to stop)...")
+    logger.info("Starting log reporter (press Ctrl+C/SIGTERM to stop)...")
+    stop_event = threading.Event()
+    signal.signal(signal.SIGTERM, lambda *_: stop_event.set())
+
     try:
-        while True:
+        while not stop_event.is_set():
             level, message = random.choice(LOG_LEVELS)
             logger.log(level, message)
-            time.sleep(0.1)  # 每 0.1 秒上报一条随机级别的日志
+            stop_event.wait(0.1)  # 每 0.1 秒上报一条随机级别的日志
     except KeyboardInterrupt:
         logger.info("Received keyboard interrupt, exiting...")
     finally:
