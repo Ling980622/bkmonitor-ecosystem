@@ -54,6 +54,7 @@ cd bkmonitor-ecosystem/examples/logs/sdks/java
 
 ```java
 import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.exporter.otlp.http.logs.OtlpHttpLogRecordExporter;
 import io.opentelemetry.sdk.logs.SdkLoggerProvider;
 import io.opentelemetry.sdk.logs.export.BatchLogRecordProcessor;
@@ -77,7 +78,7 @@ SdkLoggerProvider loggerProvider = SdkLoggerProvider.builder()
         .setResource(Resource.getDefault().merge(
                 Resource.create(Attributes.of(
                         ResourceAttributes.SERVICE_NAME, "custom-log-sdk-demo",
-                        ResourceAttributes.DEPLOYMENT_ENVIRONMENT, "local"
+                        AttributeKey.stringKey("deployment.environment.name"), "local"
                 ))
         ))
         .addLogRecordProcessor(BatchLogRecordProcessor.builder(exporter).build())
@@ -169,7 +170,7 @@ public class Main {
         Resource resource = Resource.getDefault().merge(
                 Resource.create(Attributes.of(
                         ResourceAttributes.SERVICE_NAME, "custom-log-sdk-demo",
-                        ResourceAttributes.DEPLOYMENT_ENVIRONMENT, "local"
+                        AttributeKey.stringKey("deployment.environment.name"), "local"
                 ))
         );
 
@@ -178,12 +179,13 @@ public class Main {
                 .addLogRecordProcessor(BatchLogRecordProcessor.builder(exporter).build())
                 .build();
 
-        Runtime.getRuntime().addShutdownHook(new Thread(loggerProvider::shutdown));
+        Runtime.getRuntime().addShutdownHook(new Thread(loggerProvider::close));
 
         io.opentelemetry.api.logs.Logger otelLogger = loggerProvider.get("otel");
 
         consoleLogger.info("Starting log reporter (press Ctrl+C to stop)...");
 
+        boolean interrupted = false;
         try {
             while (true) {
                 LogLevel level = LOG_LEVELS[RANDOM.nextInt(LOG_LEVELS.length)];
@@ -221,9 +223,10 @@ public class Main {
             }
         } catch (InterruptedException e) {
             consoleLogger.info("Received keyboard interrupt, exiting...");
-            Thread.currentThread().interrupt();
+            interrupted = true;
         } finally {
-            loggerProvider.shutdown();
+            loggerProvider.close();
+            if (interrupted) Thread.currentThread().interrupt();
         }
     }
 
